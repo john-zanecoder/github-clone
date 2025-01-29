@@ -1,57 +1,59 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const GitHubIssuesPage = () => {
-  const [issues, setIssues] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchIssues = async () => {
-      try {
-        const response = await axios.get('https://api.github.com/repos/OWNER/REPO/issues', {
-          headers: {
-            Accept: 'application/vnd.github.v3+json',
-          },
-        });
-        setIssues(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching issues:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchIssues();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+const PullRequestList = () => {
+  const pullRequests = [
+    { id: 582, title: "TPOP-11 - Create a separation of API for LConditions", opened: "yesterday", author: "sonrhey" },
+    { id: 577, title: "TPOP-2 - Broker Pipelines", opened: "last week", author: "sonrhey" },
+    { id: 573, title: "Initial setup", opened: "last week", author: "zane-jason" },
+    { id: 545, title: "Fixed morty header", opened: "Dec 26, 2024", author: "kbszanecoder" },
+    { id: 544, title: "MTM-20 - MS Teams Call", opened: "Dec 26, 2024", author: "sonrhey" },
+    { id: 542, title: "Admin Email Template updates", opened: "Dec 24, 2024", author: "kbszanecoder" },
+    { id: 541, title: "122425 - JIRA bug fixes", opened: "Dec 24, 2024", author: "kbszanecoder" },
+    { id: 477, title: "Loan Details API", opened: "Nov 12, 2024", author: "sonrhey" },
+    { id: 473, title: "Create OC", opened: "Nov 8, 2024", author: "sonrhey" },
+  ];
 
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif', backgroundColor: '#f6f8fa', minHeight: '100vh', padding: '20px' }}>
-      <header style={{ backgroundColor: '#24292e', color: '#ffffff', padding: '16px', marginBottom: '20px' }}>
-        <h1 style={{ margin: 0 }}>GitHub Issues</h1>
-      </header>
-      <div style={{ maxWidth: '880px', margin: '0 auto' }}>
-        <h2 style={{ color: '#24292e', marginBottom: '16px' }}>{issues.length} Open</h2>
-        <div style={{ backgroundColor: '#ffffff', border: '1px solid #e1e4e8', borderRadius: '6px' }}>
-          {issues.map(issue => (
-            <div key={issue.id} style={{ padding: '16px', borderBottom: '1px solid #e1e4e8' }}>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ color: '#24292e', fontWeight: '600', fontSize: '16px' }}>{issue.title}</span>
-              </div>
-              <div style={{ fontSize: '12px', color: '#586069' }}>
-                #{issue.number} opened on {new Date(issue.created_at).toLocaleDateString()} by {issue.user.login}
-              </div>
-            </div>
-          ))}
+    <div className="p-4 bg-gray-100 min-h-screen">
+      <div className="flex items-center justify-between mb-4">
+        <Input placeholder="Search" className="w-1/3" />
+        <div className="flex gap-2">
+          <Button>New pull request</Button>
         </div>
       </div>
+
+      <Card>
+        <CardContent>
+          <div className="border-b pb-2 mb-2 flex justify-between">
+            <Checkbox />
+            <span>13 Open</span>
+            <span>569 Closed</span>
+          </div>
+
+          <ul className="space-y-4">
+            {pullRequests.map((pr) => (
+              <li key={pr.id} className="flex justify-between items-center border-b pb-2">
+                <div className="flex items-center gap-2">
+                  <Checkbox />
+                  <span className="font-medium">{pr.title}</span>
+                </div>
+                <div className="text-sm text-gray-500">
+                  #{pr.id} opened {pr.opened} by {pr.author}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
-export default GitHubIssuesPage;
+export default PullRequestList;
