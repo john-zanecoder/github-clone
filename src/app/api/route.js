@@ -1,34 +1,29 @@
-// app/api/github-pulls/route.js
-import { NextResponse } from 'next/server';
-
-export async function GET() {
+export async function GET(req) {
   try {
     const repoOwner = process.env.REPO_OWNER;
-
     const repoName = process.env.REPO_NAME;
-    const url = `https://api.github.com/repos/${repoOwner}/${repoName}/pulls`;
+
+    // Get the 'state' parameter from the query
+    const { searchParams } = new URL(req.url);
+    const state = searchParams.get('state') || 'open'; // Default to 'open'
+
+    const url = `https://api.github.com/repos/${repoOwner}/${repoName}/pulls?state=${state}`;
 
     const response = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, // Add your GitHub token here
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, // Make sure your token is set in the .env file
+        Accept: 'application/vnd.github.v3+json',
       },
     });
 
     if (!response.ok) {
-      return NextResponse.json(
-        { error: 'Failed to fetch pull requests from GitHub' },
-        { status: response.status }
-      );
+      throw new Error(`GitHub API error: ${response.status}`);
     }
 
-    const pullRequests = await response.json();
-    return NextResponse.json(pullRequests);
+    const data = await response.json();
+    return new Response(JSON.stringify(data), { status: 200 });
   } catch (error) {
     console.error('Error fetching pull requests:', error);
-    return NextResponse.json(
-      { error: 'Error fetching pull requests' },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
