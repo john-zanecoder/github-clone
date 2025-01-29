@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const repoOwner = 'john-zanecoder';
-    const repoName = 'github-clone';
+    const repoOwner = process.env.REPO_OWNER;
+
+    const repoName = process.env.REPO_NAME;
     const url = `https://api.github.com/repos/${repoOwner}/${repoName}/pulls`;
 
     const response = await fetch(url, {
