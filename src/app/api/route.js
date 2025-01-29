@@ -1,30 +1,29 @@
-// Import necessary modules (this may vary depending on your environment)
-import { NextResponse } from 'next/server';
-
-export async function GET() {
+export async function GET(req) {
   try {
-    // GitHub repository details
-    const repoOwner = 'john-zanecoder';
-    const repoName = 'github-clone';
-    
-    // Construct the GitHub API URL for pull requests
-    const url = `https://api.github.com/repos/${repoOwner}/${repoName}/pulls`;
-    
-    // Fetch data from GitHub API
-    const response = await fetch(url);
-    
-    // Check if the response is successful
+    const repoOwner = process.env.REPO_OWNER;
+    const repoName = process.env.REPO_NAME;
+
+    // Get the 'state' parameter from the query
+    const { searchParams } = new URL(req.url);
+    const state = searchParams.get('state') || 'open'; // Default to 'open'
+
+    const url = `https://api.github.com/repos/${repoOwner}/${repoName}/pulls?state=${state}`;
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, // Make sure your token is set in the .env file
+        Accept: 'application/vnd.github.v3+json',
+      },
+    });
+
     if (!response.ok) {
-      return NextResponse.json({ error: 'Failed to fetch pull requests from GitHub' }, { status: response.status });
+      throw new Error(`GitHub API error: ${response.status}`);
     }
 
-    // Parse the response JSON
-    const pullRequests = await response.json();
-
-    // Return the pull requests data
-    return NextResponse.json(pullRequests);
+    const data = await response.json();
+    return new Response(JSON.stringify(data), { status: 200 });
   } catch (error) {
     console.error('Error fetching pull requests:', error);
-    return NextResponse.json({ error: 'Error fetching pull requests' }, { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
